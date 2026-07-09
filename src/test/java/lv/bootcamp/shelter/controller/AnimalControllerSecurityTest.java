@@ -40,25 +40,25 @@ class AnimalControllerSecurityTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void adminCanDeleteAnimal() throws Exception {
-        // TODO:
-        // 1. Stub animalService.delete(1L) to do nothing (it returns void)
-        // 2. DELETE /api/animals/1
-        // 3. Assert status 204 (No Content)
+
+        doNothing().when(animalService).delete(1L);
+
+        mockMvc.perform(delete("/api/animals/1"))
+                .andExpect(status().isNoContent());
     }
 
     @Test
     @WithMockUser(roles = "USER")
     void regularUserCannotDeleteAnimal() throws Exception {
-        // TODO:
-        // 1. DELETE /api/animals/1 (no stubbing needed — request should be rejected
-        //    before it reaches the service)
-        // 2. Assert status 403 (Forbidden)
+
+        mockMvc.perform(delete("/api/animals/1"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void unauthenticatedRequestIsRejected() throws Exception {
-        // TODO:
-        // 1. DELETE /api/animals/1 with no @WithMockUser (anonymous request)
-        // 2. Assert status 401 (Unauthorized)
+
+        mockMvc.perform(delete("/api/animals/1"))
+                .andExpect(status().isUnauthorized());
     }
 }

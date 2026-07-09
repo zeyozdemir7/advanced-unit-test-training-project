@@ -29,34 +29,50 @@ class AnimalRepositoryTest {
 
     @Test
     void save_shouldPersistAnimalAndGenerateId() {
-        // TODO:
-        // 1. Create an Animal with id=null
-        // 2. Call animalRepository.save()
-        // 3. Assert the returned animal has a non-null id and the correct name
+        Animal animal = new Animal(null, "Millo", AnimalType.DOG, "Golden", 2, "Excited", AnimalStatus.AVAILABLE);
+        Animal saved = animalRepository.save(animal);
+
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getName()).isEqualTo("Millo");
     }
 
     @Test
     void findByStatus_shouldReturnOnlyMatchingAnimals() {
-        // TODO:
-        // 1. Persist two AVAILABLE animals and one ADOPTED animal via entityManager
-        //    Call entityManager.flush() after persisting
-        // 2. Call animalRepository.findByStatus(AVAILABLE)
-        // 3. Assert only the two available animals are returned
+
+        entityManager.persist(new Animal(null, "Rex", AnimalType.DOG, "Labrador", 3, "Friendly", AnimalStatus.AVAILABLE));
+        entityManager.persist(new Animal(null, "Karam", AnimalType.CAT, "Street Cat", 2, "Spicy", AnimalStatus.AVAILABLE));
+        entityManager.persist(new Animal(null, "T-rex", AnimalType.DOG, "Terrier", 6, "Calm", AnimalStatus.ADOPTED));
+        entityManager.flush();
+
+        List<Animal> available = animalRepository.findByStatus(AnimalStatus.AVAILABLE);
+
+        assertThat(available).hasSize(2);
+        assertThat(available).extracting("name").containsExactlyInAnyOrder("Rex", "Karam");
     }
 
     @Test
     void findByType_shouldReturnAnimalsOfGivenType() {
-        // TODO:
-        // 1. Persist one DOG and one CAT, flush
-        // 2. Call animalRepository.findByType(DOG)
-        // 3. Assert only the dog is returned
+
+        entityManager.persist(new Animal(null, "Rex", AnimalType.DOG, "Labrador", 3, "Friendly", AnimalStatus.AVAILABLE));
+        entityManager.persist(new Animal(null, "Luna", AnimalType.CAT, "Norweigan", 2, "Calm", AnimalStatus.AVAILABLE));
+        entityManager.flush();
+
+        List<Animal> dogs = animalRepository.findByType(AnimalType.DOG);
+
+        assertThat(dogs).hasSize(1);
+        assertThat(dogs.getFirst().getName()).isEqualTo("Rex");
     }
 
     @Test
     void findByNameContainingIgnoreCase_shouldMatchPartialName() {
-        // TODO:
-        // 1. Persist animals named "Rex", "Rexy Jr", and "Mia", flush
-        // 2. Call animalRepository.findByNameContainingIgnoreCase("rex")
-        // 3. Assert two results are returned (case-insensitive partial match)
+        entityManager.persist(new Animal(null, "Rex", AnimalType.DOG, "Labrador", 3, "Friendly", AnimalStatus.AVAILABLE));
+        entityManager.persist(new Animal(null, "Rexy Jr", AnimalType.DOG, "Terrier", 1, "Slow", AnimalStatus.AVAILABLE));
+        entityManager.persist(new Animal(null, "Mia", AnimalType.CAT, "Siamese", 2, "Calm", AnimalStatus.AVAILABLE));
+        entityManager.flush();
+
+        List<Animal> results = animalRepository.findByNameContainingIgnoreCase("rex");
+
+        assertThat(results).hasSize(2);
+        assertThat(results).extracting("name").containsExactlyInAnyOrder("Rex", "Rexy Jr");
     }
 }
